@@ -1,0 +1,426 @@
+# FURKAN ALİ TURAN - 030721021
+
+# HOCAM ÖDEVİ WİNDOWS METİN DOSYASINA KAYDETTİĞİM İÇİN KARAKTER FORMATI HATASI ALABİLİRSİNİZ. 
+# EĞER ÖYLE BİR DURUM OLURSA KARAKTERLERİ FORMATLAMANIZ GEREKEBİLİR (ONLİNE YAPAN SİTELER VAR)
+
+# PROGRAMIMIZ İLK ÖNCE KULLANICIDAN GİRDİ NUMARASINI ALIYOR,
+# DAHA SONRA BU SAYI MAKSIMUM DEĞERDEN KÜÇÜKMÜ ONU KONTROL EDİYOR
+# DAHA DAHA SONRA GİRİLEN SAYI VALİD BİR DEĞERMİ ONU KONTROL EDİYOR
+# SONRAKİ KISIMDA BİRTAKIM GLOBAL DEĞİŞKENLERİ TANIMLIYORUZ, 
+# AYRICA FİBONACCİ SAYILARINI GENERATE EDEN FONKSİYONU VE 
+# BÖLÜNEBİLME KURALLARINI İMPLEMENT EDEN FONKSİYONLARI TANIMLIYORUZ,
+# BÖLÜNEBİLME KURALLARI EĞER MEVCUT FİBONACCİ SAYISI İLGİLİ SAYIYA
+# BÖLÜNÜYORSA 1 DÖNÜYOR, BÖLÜNMÜYORSA 0
+# SONRASINDA BÖLÜNEBİLME KURALLARINI TEK BİR FONKSİYONDA TOPLUYORUZ,
+# BU FOKNSİYON EĞER HERHANGİ BİR BÖLÜNEBİLME KURALI MEVCUT FİBONACCİ
+# SAYISINI BÖLÜYORSA HEMEN 0 (ASAL DEGİL) DÖNÜYOR, FONKSİYONUN SONUNDA
+# HİÇBİR BÖLÜNEBİLME KURALI SAYIYI BÖLEMEDİYSE 1 (ASAL) DÖNÜYOR
+# YAZDIRMAK İÇİN BİRKAÇ YARDIMCI FONKSİYONUMUZ VAR.
+# EN SONDA BÜTÜN MÜMKÜN FİBO SAYILARINI DOLAŞIYOR VE GİRİLEN SAYIDAN
+# KÜÇÜK OLAN FİBO SAYILARI İÇİN ASAL KONTROL EDEN FONKSİYONU ÇAĞIRIYORUZ
+
+#generateFibonacci FIBO SAYILARINI OLUŞTURDUĞUMUZ FONKSIYON
+#divideRule2...25 BÖLÜNEBİLME KURALI FONKSİYONLARI, BÖLÜNÜYORSA 1, BÖLÜNMÜYORSA 0
+#checkPrime BÜTÜN BÖLÜNEBİLME KURALI FONKSİYONLARINI TOPLADIĞIMIZ FONKSİYON
+#resetDigitsArray BÖLÜNEBİLME KURALI İMPLEMENTASYONU İÇİN MEVCUT FİBONACCİ SAYILARININ 
+# RAKAMLARINI DİZİYE BİRER ELEMENT OLARAK AKTARDIĞIMIZ FONKSİYON
+
+
+sed -i 's/\r$//' main.bash #BU OLMADAN HATA ALABİLİYORUZ
+#!/bin/bash
+fib=(0 1) #FİBONACCİ DİZİSİNİ HESAPLAMAK İÇİN İNİTİALİZİTAON
+currentFibonacciNumber=0 # YARDIMCI GLOABAL DEĞİŞKEN
+generateFibonacci() { 
+    maksfibo=4100200300 # MAKSİMUM DEĞER
+    while true; do # HESAP DÖNGÜSÜ
+    next=$((fib[-1] + fib[-2])) # BİR SONRAKİ FİBO SAYISINI HESAPLA
+     if (( next >= maksfibo )); then # MAKS DEĞERDEN BÜYÜKSE DUR
+        break
+    fi
+     fib+=($next) # BÜYÜK DEĞİLSE DİZİYE EKLE
+    done
+}
+
+read -p "Lutfen bir sayi giriniz (Maks. 4.100.200.300): " number # İNPUT
+
+if ((number >= 4100200300)); then # SAYI MAKS DEĞERDEN BÜYÜKMÜ?
+    echo "You have inputted a very big number!" # BÜYÜKSE HATA VER...
+    exit # VE ÇIK
+fi
+
+if ! [[ "$number" =~ ^[0-9]+$ ]]; then # KULLANICI SAÇMA BİRŞEY GİRMİŞSE...
+    echo "Invalid input!" # HATA VER
+    exit # VE ÇIK
+fi
+
+digits=() # BÖLÜNEBİLME KURALLARI HESABI İÇİN FİBO SAYILARININ RAKAMLARINI TUTTUĞUMUZ YARDIMCI DEĞİŞKEN
+size=0 # DİZİNİN BOYUTUNU GÖSTEREN DEĞİŞKEN. BUNU GALİBA HİÇ KULLANMIYORUM.....
+divideRule2() { # 2 İLE BÖLÜNEBİLME KURALI
+    if ((currentFibonacciNumber == 2)); then # 2 ASAL SAYI OLDUĞU İÇİN EĞER MEVCUT FİBO 2 İSE ASAL
+    return 0
+    fi
+    
+    last_digit=${digits[-1]} # SON BASAMAĞI AL...
+    if ((last_digit % 2 == 0)); then # EĞER 2 İSE BÖLÜNÜR
+    return 1 # BÖLÜNÜR DÖN
+    else
+    return 0 # DEĞİL İSE BÖLÜNMEZ
+    fi
+}
+divideRule3() { # 3 İLE BÖLÜNEBİLME KURALI
+    if ((currentFibonacciNumber == 3)); then # 3 ASAL SAYI OLDUĞU İÇİN EĞER MEVCUT FİBO 3 İSE ASAL
+    return 0
+    fi
+    
+    sum=0 # BASAMAK TOPLAMI İÇİN DEĞİŞKEN
+    for d in "${digits[@]}"; do # RAKAMLARI TUTTUĞUMUZ digits DİZİSİNİ DOLAŞIYORUZ...
+        sum=$((sum + d)) # TOPLAM
+    do
+    
+    if ((sum % 3 == 0)); then # EĞER TOPLAM 3'E BÖLÜNÜYORSA 1 (BÖLÜNÜR) DÖN
+    return 1
+    else 
+    return 0
+    fi
+}
+divideRule4() { # 4 İLE BÖLÜNEBİLME KURALI
+    if (( size >= 2 )); then  # SAYININ RAKAM SAYISI 2 DEN BÜYÜKSE
+    last_two_digits=${currentFibonacciNumber:len-2:2}  # SON İKİ RAKAMINI AL
+    else
+    last_two_digits=$currentFibonacciNumber  # DEĞİLSE DİREK SAYIYI AL
+    fi
+    
+    last_two_digits_num=$((10#$last_two_digits))  # ALINAN RAKAMLARI SAYIYA DÖNÜŞTÜR
+    if ((last_two_digits_num % 4 == 0)); then # YENİ SAYI 4 E BÖLÜNÜYORSA SAYIDA BÖLÜNÜR
+    return 1
+    else 
+    return 0
+    fi
+}
+divideRule5() { # 5 İLE BÖLÜNEBİLME KURALI
+    if ((currentFibonacciNumber == 5)); then # 5 ASAL SAYI OLDUĞU İÇİN EĞER MEVCUT FİBO 5 İSE ASAL
+    return 0
+    fi
+    
+    last_digit=${digits[-1]} # SON BASAMAĞI AL
+    if ((last_digit % 5 == 0)); then  # SON BASAMAK 5 VEYA 0 İSE BÖLÜNÜR
+    return 1
+    else
+    return 0
+    fi
+}
+divideRule6() { # 6 İLE BÖLÜNEBİLME KURALI
+    divideRule2  # İKİ İLE BÖLÜNEBİLME KURALINI ÇALIŞTIR
+    divideRule2Result=$?  # DEĞİŞKENE KAYDET
+    divideRule3  # 3 İLE BÖLÜNEBİLME KURALINI ÇALIŞTIR
+    divideRule3Result=$? # DEĞİŞKENE KAYDET
+    
+    if (( divideRule2Result == 1 && divideRule3Result == 1 )); then  # EĞER İKİSİNEDE BÖLÜNÜYORSA
+    return 1  # BÖLÜNÜR
+    else
+    return 0  # YOKSA BÖLÜNMEZ
+    fi
+}
+divideRule7() {  # 7 İLE BÖLÜNEBİLME KURALI
+    a=$((currentFibonacciNumber / 10))  # SAYIYI 10A ŞEKLİNDE YAZ
+    b=${digits[-1]}  # B Yİ AL
+    b=$((b * 2))  # B Yİ İKİ İLE ÇARP
+    aminus2b=$((a - b))  # A-2B
+    if ((aminus2b % 7 == 0)); then  # A-2B 7 İLE BÖLÜNÜYORSA
+    return 1  # BÖLÜNÜR
+    else 
+    return 0  # YOKSA BÖLÜNMEZ
+    fi
+}
+divideRule8() { # 8 İLE BÖLÜNEBİLME KURALI
+    if (( size >= 3 )); then  # SAYININ RAKAM SAYISI 3 DEN BÜYÜK İSE
+    last_three_digits=${currentFibonacciNumber:len-3:3}  # SON 3 RAKAM
+    else
+    last_three_digits=$currentFibonacciNumber  # DEĞİLSE SAYININ KENDİSİ
+    fi
+    
+    last_three_digits_num=$((10#$last_three_digits))  # RAKAMLARI SAYIYA DÖNÜŞTÜR
+    if ((last_three_digits_num % 8 == 0)); then # SON SAYI 8 E BÖLÜNÜYORMU?
+    return 1  # BÖLÜNÜR
+    else 
+    return 0 # BÖLÜNMEZ
+    fi
+}
+divideRule9() {  # 9 İLE BÖLÜNEBİLME KURALI
+    sum=0 # YARDIMCI DEĞİŞKEN
+    for d in "${digits[@]}"; do  # RAKAMLARI TOPLAMA DÖNGÜSÜ
+        sum=$((sum + d)) # RAKAMI EKLE..
+    done
+    
+    if ((sum % 9 == 0)); then # TOPLAM 9 A BÖLÜNÜYORMU?
+    return 1 # BÖLÜNÜR
+    else 
+    return 0 # BÖLÜNMEZ
+    fi
+}
+divideRule10() { # 10 İLE BÖLÜNEBİLME KURALI
+    last_digit=${digits[-1]} # SON RAKAMI AL
+    if ((last_digit == 0)); then # 0 İSE
+    return 1 # BÖLÜNÜR
+    else
+    return 0 # BÖLÜNMEZ
+    fi
+}
+divideRule11() { # 11 İLE BÖLÜNÜYORMU?
+    if ((currentFibonacciNumber == 11)); then  # ÇOK TEMBELİM...
+    return 0
+    fi
+    if ((currentFibonacciNumber % 11 == 0)); then
+    return 1
+    else
+    return 0
+    fi
+}
+divideRule12() { # 12 İLE BÖLÜNEBİLME KURALI
+    divideRule3 # 3 KURALINI DENE
+    divideRule3Result=$? # SONUCU KAYDET
+    divideRule4 # 4 KURALINI DENE
+    divideRule4Result=$? # SONUCU KAYDET
+    
+    if (( divideRule3Result == 1 && divideRule4Result == 1 )); then # İKİSENEDE BÖLÜNDÜMÜ?
+    return 1 # BÖLÜNÜR
+    else
+    return 0 # BÖLÜNMEZ
+    fi
+}
+divideRule13() { # 13 İLE BÖLÜNÜYORMU?
+    if ((currentFibonacciNumber == 13)); then # ÇOK TEMBELİM...
+    return 0
+    fi
+    
+    if ((currentFibonacciNumber % 13 == 0)); then # ÇOK TEMBELİM...
+    return 1
+    else
+    return 0
+    fi
+}
+divideRule15() { # 15 İLE BÖLÜNEBİLME KURALI
+    divideRule3 # 3 KURALINI DENE
+    divideRule3Result=$? # SONUCU KAYDET
+    divideRule5 # 5 KURALINI DENE
+    divideRule5Result=$? # SONUCU KAYDET
+    
+    if (( divideRule3Result == 1 && divideRule5Result == 1 )); then # İKİSİNEDE BÖLÜNDÜMÜ?
+    return 1 # BÖLÜNÜR
+    else
+    return 0 # BÖLÜNMEZ
+    fi
+}
+divideRule17() { # 17 İLE BÖLÜNEBİLME KURALI
+    a=$((currentFibonacciNumber / 10)) # A'YI HESAPLA
+    b=${digits[-1]} # B'Yİ AL
+    b=$((b * 5)) # B'Yİ 5 İLE ÇARP
+    aminus5b=$((a - b)) # A-5B
+    if ((aminus5b % 17 == 0)); then # A-5B BÖLÜNDÜMÜ?
+    return 1 # BÖLÜNÜR
+    else
+    return 0 # BÖLÜNMEZ
+    fi
+}
+divideRule18() { # 18 İLE BÖLÜNEBİLME KURALI
+    divideRule2 # 2 KURALINI DENE
+    divideRule2Result=$? # SONUCU KAYDET
+    divideRule9 # 9 KURALINI DENE
+    divideRule9Result=$? # SONUCU KAYDET
+    
+    if (( divideRule2Result == 1 && divideRule9Result == 1 )); then # İKİSİNEDE BÖLÜNDÜMÜ??
+    return 1 # BÖLÜNÜR
+    else
+    return 0 # BÖLÜNMEZ
+    fi
+}
+divideRule19() { # 19 İLE BÖLÜNEBİLME KURALI
+    a=$((currentFibonacciNumber / 10)) # A'YI HESAPLA
+    b=${digits[-1]} # B'Yİ AL
+    b=$((b * 2)) # B'Yİ İKİ İLE ÇARP
+    aplus2b=$((a + b)) # A+2B
+    if ((aplus2b % 19 == 0)); then # A+2B 19'A BÖLÜNDÜMÜ?
+    return 1 # BÖLÜNÜR
+    else
+    return 0 # BÖLÜNMEZ
+    fi
+}
+divideRule23() { # 23 İLE BÖLÜNEBİLME KURALI
+    a=$((currentFibonacciNumber / 10)) # A'YI HESAPLA
+    b=${digits[-1]} # B'Yİ AL
+    b=$((b * 7))  # B'Yİ 7 İLE ÇARP
+    aplus7b=$((a + b)) # A+7B
+    if ((aplus7b % 23 == 0)); then # A+7B 23'E BÖLÜNDÜMÜ?
+    return 1 # BÖLÜNÜR
+    else
+    return 0 # BÖLÜNMEZ
+    fi
+}
+divideRule24() { # 24 İLE BÖLÜNEBİLME KURALI
+    divideRule3 # 3 KURALINI DENE
+    divideRule3Result=$?  # SONUCU KAYDET
+    divideRule8 # 8 KURALINI DENE
+    divideRule8Result=$?  # SONUCU KAYDET
+    
+    if (( divideRule3Result == 1 && divideRule8Result == 1 )); then # İKİSİNEDE BÖLÜNDÜMÜ????
+    return 1 # BÖLÜNÜR
+    else
+    return 0 # BÖLÜNMEZ
+    fi
+}
+divideRule25() { # 25 İLE BÖLÜNEBİLME KURALI
+    if (( size >= 2 )); then # SAYININ RAKAMLARI 2'DEN FAZLAMI?
+    last_two_digits=${currentFibonacciNumber:len-2:2} # FAZLA İSE SON İKİ RAKAMI AL
+    else
+    last_two_digits=$currentFibonacciNumber # DEĞİL İSE SAYIYI AL
+    fi
+    
+    last_two_digits_num=$((10#$last_two_digits)) # SON İKİ RAKAMI SAYI YAP
+    if ((last_two_digits_num % 25 == 0)); then # SAYI 25'E BÖLÜNÜYORMU?
+    return 1 # BÖLÜNÜR
+    else 
+    return 0 # BÖLÜNMEZ
+    fi
+}
+checkPrime() { # BÜTÜN BÖLÜNEBİLME KURALLARINI BURADA TEST EDİYORUZ SAYI İÇİN
+    if ((currentFibonacciNumber == 1)); then # SAYI 1 İSE
+    return 0  # ASAL DEĞİL...
+    fi
+    
+    divideRule2
+    divideRuleResult=$?
+    if ((divideRuleResult == 1)); then  
+    return 0 # 2 İLE BÖLÜNÜYORSA 0 (ASAL DEĞİL) DÖN
+    fi
+    divideRule3
+    divideRuleResult=$?
+    if ((divideRuleResult == 1)); then
+    return 0 # 3 İLE BÖLÜNÜYORSA 0 (ASAL DEĞİL) DÖN
+    fi
+    divideRule4
+    divideRuleResult=$?
+    if ((divideRuleResult == 1)); then
+    return 0 # 4 İLE BÖLÜNÜYORSA 0 (ASAL DEĞİL) DÖN
+    fi
+    divideRule5
+    divideRuleResult=$?
+    if ((divideRuleResult == 1)); then
+    return 0 # 5 İLE BÖLÜNÜYORSA 0 (ASAL DEĞİL) DÖN
+    fi
+    divideRule6
+    divideRuleResult=$?
+    if ((divideRuleResult == 1)); then
+    return 0 # 6 İLE BÖLÜNÜYORSA 0 (ASAL DEĞİL) DÖN
+    fi
+    divideRule7
+    divideRuleResult=$?
+    if ((divideRuleResult == 1)); then
+    return 0 # 7 İLE BÖLÜNÜYORSA 0 (ASAL DEĞİL) DÖN
+    fi
+    divideRule8
+    divideRuleResult=$?
+    if ((divideRuleResult == 1)); then
+    return 0 # 8 İLE BÖLÜNÜYORSA 0 (ASAL DEĞİL) DÖN
+    fi
+    divideRule9
+    divideRuleResult=$?
+    if ((divideRuleResult == 1)); then
+    return 0 # 9 İLE BÖLÜNÜYORSA 0 (ASAL DEĞİL) DÖN
+    fi
+    divideRule10
+    divideRuleResult=$?
+    if ((divideRuleResult == 1)); then
+    return 0 # 10 İLE BÖLÜNÜYORSA 0 (ASAL DEĞİL) DÖN
+    fi
+    divideRule11
+    divideRuleResult=$?
+    if ((divideRuleResult == 1)); then
+    return 0 # 11 İLE BÖLÜNÜYORSA 0 (ASAL DEĞİL) DÖN
+    fi
+    divideRule12
+    divideRuleResult=$?
+    if ((divideRuleResult == 1)); then
+    return 0 # 12 İLE BÖLÜNÜYORSA 0 (ASAL DEĞİL) DÖN
+    fi
+    divideRule13
+    divideRuleResult=$?
+    if ((divideRuleResult == 1)); then
+    return 0 # 13 İLE BÖLÜNÜYORSA 0 (ASAL DEĞİL) DÖN
+    fi
+    divideRule15
+    divideRuleResult=$?
+    if ((divideRuleResult == 1)); then
+    return 0 # 15 İLE BÖLÜNÜYORSA 0 (ASAL DEĞİL) DÖN
+    fi
+    divideRule17
+    divideRuleResult=$?
+    if ((divideRuleResult == 1)); then
+    return 0 # 17 İLE BÖLÜNÜYORSA 0 (ASAL DEĞİL) DÖN
+    fi
+    divideRule18
+    divideRuleResult=$?
+    if ((divideRuleResult == 1)); then
+    return 0 # 18 İLE BÖLÜNÜYORSA 0 (ASAL DEĞİL) DÖN
+    fi
+    divideRule19
+    divideRuleResult=$?
+    if ((divideRuleResult == 1)); then
+    return 0 # 19 İLE BÖLÜNÜYORSA 0 (ASAL DEĞİL) DÖN
+    fi
+    divideRule23
+    divideRuleResult=$?
+    if ((divideRuleResult == 1)); then
+    return 0 # 23 İLE BÖLÜNÜYORSA 0 (ASAL DEĞİL) DÖN
+    fi
+    divideRule24
+    divideRuleResult=$?
+    if ((divideRuleResult == 1)); then
+    return 0 # 24 İLE BÖLÜNÜYORSA 0 (ASAL DEĞİL) DÖN
+    fi
+    divideRule25
+    divideRuleResult=$?
+    if ((divideRuleResult == 1)); then
+    return 0 # 25 İLE BÖLÜNÜYORSA 0 (ASAL DEĞİL) DÖN
+    fi
+    return 1 # BURAYA KADAR GELDİYSEK ASAL DE.
+}
+
+printPrime() { # FİBO SAYISININ ASAL OLUP OLMADIĞINI YAZDIRMAK İÇİN FONKSİYON
+    checkPrime # ASAL KONTROL FONKSİYONUNU ÇALIŞTIR
+    isPrime=$? # SONUCU KAYDET
+    if ((isPrime == 1)); then # SONUÇ 1 (ASAL) İSE...
+    echo "asal"  # ASAL DE.
+    fi
+}
+
+resetDigitsArray() { # KONTROL DÖNGÜSÜNDE ÇAĞIRDIĞIMIZ YARDIMCI FONKSİYOM
+    local num=$currentFibonacciNumber # BUNU ATAMAYINCA BOZULABİLİYOR
+    digits=() # DİZİYİ SIFIRLA
+    for ((j=0; j<${#num}; j++)); do # MEVCUT FİBO SAYISININ TÜM RAKAMLARINI DOLAŞ
+        digits+=("${num:$j:1}") # DİZİYE EKLE
+    done
+}
+
+print_number_human_readable() { # SAYIYI İNSANA ÇEVİRME FONKSİYONU
+    local reversedFiboNumber=$(echo "$currentFibonacciNumber" | rev) # SAYIYI TERS ÇEVİR
+    local humanreadFiboNumber="" # SONUÇ DEĞİŞKENİ
+
+    for ((i=0; i<${#reversedFiboNumber}; i++)); do # HER RAKAM İÇİN...
+        humanreadFiboNumber+=${reversedFiboNumber:$i:1} # RAKAMI SONUCA EKLE
+        if (( (i + 1) % 3 == 0 && i + 1 < ${#reversedFiboNumber} )); then # 3'ÜN KATI İTERASYONDAYSAK VE SAYI DEVAM EDİYORSA...
+            humanreadFiboNumber+="." # SONUCA NOKTA EKLE
+        fi
+    done
+    echo "$(echo "$humanreadFiboNumber" | rev)" # SONUCU YAZDIR (TERS ÇEVİREREK)
+}
+
+ # ANA PROGRAM DÖNGÜSÜ
+generateFibonacci # FİBONACCİ SAYILARINI OLUŞTUR
+
+for (( i=${#fib[@]}-1; i>=0; i-- )); do # HER FİBO SAYISI İÇİN (TERSTEN İTERASYON)....
+  currentFibonacciNumber=${fib[$i]}   # MEVCUT FİBO SAYISINI YARDIMCI GLOBAL DEĞİŞKENE ATA
+  if (( number > currentFibonacciNumber )); then # EĞER MEVCUT FİBO SAYISI KULLANICI GİRDİSİNDEN KÜÇÜKSE...
+    resetDigitsArray # RAKAM DİZİSİNİ SIFIRLA VE YENİDEN OLUŞTUR
+    echo "$(print_number_human_readable) $(printPrime)" # MEVCUT FİBO SAYISINI VE ASALMI DEĞİLMİ ONU YAZDIR.
+  fi
+done
